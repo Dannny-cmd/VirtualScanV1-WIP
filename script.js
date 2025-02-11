@@ -1,4 +1,4 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=1000';
+const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100';
 const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
 let allItems = [];
 let uniqueChains = new Set();
@@ -11,6 +11,17 @@ async function fetchPrice() {
     priceUsd = parseFloat(data[0].price_usd); // Get the price_usd
   } catch (error) {
     console.error('Error fetching price:', error);
+  }
+}
+
+async function fetchHolders(preToken) {
+  try {
+    const response = await fetch(`https://api.virtuals.io/api/tokens/${preToken}/holders`);
+    const data = await response.json();
+    return data.data.slice(0, 5); // Return top 5 holders
+  } catch (error) {
+    console.error('Error fetching holders:', error);
+    return []; // Return empty array on error
   }
 }
 
@@ -64,12 +75,18 @@ function fallbackCopyToClipboard(text) {
   document.body.removeChild(textArea);
 }
 
-function displayData(items) {
+async function displayData(items) {
   const container = document.getElementById('data-container');
   container.innerHTML = ''; // Clear previous items
-  items.forEach(item => {
+  for (const item of items) {
     const mcapInVirtual = parseFloat(item.mcapInVirtual);
     const marketCap = (isNaN(mcapInVirtual) ? 'N/A' : (mcapInVirtual * priceUsd).toFixed(2)); // Calculate Market Cap with validation
+
+    // Fetch top holders
+    const holders = await fetchHolders(item.preToken);
+    const totalTopHolders = holders.reduce((total, holder) => total + holder[1], 0); // Sum the amounts of top holders
+    const topHoldersPercentage = ((totalTopHolders / 1_000_000_000) * 100).toFixed(2); // Calculate percentage of 1 billion
+
     const itemDiv = document.createElement('div');
     itemDiv.className = 'item';
     itemDiv.innerHTML = `
@@ -88,6 +105,7 @@ function displayData(items) {
         <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
         <p><strong>Chain:</strong> ${item.chain}</p>
         <p><strong>Market Cap:</strong> $${marketCap}</p> <!-- Display Market Cap -->
+        <p><strong>Top 5 Holder %:</strong> ${topHoldersPercentage}%</p> <!-- Display Top 5 Holder Percentage -->
         <div class="user-links">
           ${generateUserLinks(item.socials.USER_LINKS)}
         </div>
@@ -103,7 +121,7 @@ function displayData(items) {
       </div>
     `;
     container.appendChild(itemDiv);
-  });
+  }
 }
 
 function populateChainFilter(items) {
