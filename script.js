@@ -1,4 +1,4 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100';
+const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=500';
 const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
 let allItems = [];
 let uniqueChains = new Set();
@@ -25,12 +25,27 @@ async function fetchHolders(preToken) {
   }
 }
 
+async function fetchAllHolders(tokens) {
+  const holderPromises = tokens.map(token => fetchHolders(token.preToken));
+  return Promise.all(holderPromises);
+}
+
 async function fetchData() {
   await fetchPrice(); // Fetch the price first
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
     allItems = data.data; // Store all items for filtering
+
+    // Fetch all holders in parallel
+    const holdersData = await fetchAllHolders(allItems);
+    
+    // Combine holders data with items
+    allItems = allItems.map((item, index) => ({
+      ...item,
+      topHolders: holdersData[index] // Add top holders to each item
+    }));
+
     displayData(allItems);
     populateChainFilter(allItems); // Populate chain filter after fetching data
   } catch (error) {
@@ -75,16 +90,15 @@ function fallbackCopyToClipboard(text) {
   document.body.removeChild(textArea);
 }
 
-async function displayData(items) {
+function displayData(items) {
   const container = document.getElementById('data-container');
   container.innerHTML = ''; // Clear previous items
-  for (const item of items) {
+  items.forEach(item => {
     const mcapInVirtual = parseFloat(item.mcapInVirtual);
     const marketCap = (isNaN(mcapInVirtual) ? 'N/A' : (mcapInVirtual * priceUsd).toFixed(2)); // Calculate Market Cap with validation
 
-    // Fetch top holders
-    const holders = await fetchHolders(item.preToken);
-    const totalTopHolders = holders.reduce((total, holder) => total + holder[1], 0); // Sum the amounts of top holders
+    // Calculate total of top holders
+    const totalTopHolders = item.topHolders.reduce((total, holder) => total + holder[1], 0); // Sum the amounts of top holders
     const topHoldersPercentage = ((totalTopHolders / 1_000_000_000) * 100).toFixed(2); // Calculate percentage of 1 billion
 
     const itemDiv = document.createElement('div');
@@ -121,7 +135,7 @@ async function displayData(items) {
       </div>
     `;
     container.appendChild(itemDiv);
-  }
+  });
 }
 
 function populateChainFilter(items) {
