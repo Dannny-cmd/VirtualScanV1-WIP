@@ -1,8 +1,21 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100';
+const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=1000';
+const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
 let allItems = [];
 let uniqueChains = new Set();
+let priceUsd = 0;
+
+async function fetchPrice() {
+  try {
+    const response = await fetch(coinLoreUrl);
+    const data = await response.json();
+    priceUsd = parseFloat(data[0].price_usd); // Get the price_usd
+  } catch (error) {
+    console.error('Error fetching price:', error);
+  }
+}
 
 async function fetchData() {
+  await fetchPrice(); // Fetch the price first
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
@@ -55,6 +68,8 @@ function displayData(items) {
   const container = document.getElementById('data-container');
   container.innerHTML = ''; // Clear previous items
   items.forEach(item => {
+    const mcapInVirtual = parseFloat(item.mcapInVirtual);
+    const marketCap = (isNaN(mcapInVirtual) ? 'N/A' : (mcapInVirtual * priceUsd).toFixed(2)); // Calculate Market Cap with validation
     const itemDiv = document.createElement('div');
     itemDiv.className = 'item';
     itemDiv.innerHTML = `
@@ -72,6 +87,7 @@ function displayData(items) {
         <p class="copyable-text" onclick="copyToClipboard('${item.walletAddress}')"><strong>Dev Wallet:</strong> ${item.walletAddress}</p>
         <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
         <p><strong>Chain:</strong> ${item.chain}</p>
+        <p><strong>Market Cap:</strong> $${marketCap}</p> <!-- Display Market Cap -->
         <div class="user-links">
           ${generateUserLinks(item.socials.USER_LINKS)}
         </div>
