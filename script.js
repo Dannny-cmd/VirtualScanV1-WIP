@@ -25,11 +25,30 @@ function generateUserLinks(links) {
 }
 
 function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showPopup('Copied to clipboard: ' + text);
+    }).catch(err => {
+      console.error('Error copying text: ', err);
+      fallbackCopyToClipboard(text); // Fallback method
+    });
+  } else {
+    fallbackCopyToClipboard(text); // Fallback method
+  }
+}
+
+function fallbackCopyToClipboard(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  document.body.appendChild(textArea);
+  textArea.select();
+  try {
+    document.execCommand('copy');
     showPopup('Copied to clipboard: ' + text);
-  }).catch(err => {
-    console.error('Error copying text: ', err);
-  });
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+  document.body.removeChild(textArea);
 }
 
 function displayData(items) {
