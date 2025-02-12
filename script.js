@@ -18,7 +18,7 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       try {
         const response = await fetch(`https://api.virtuals.io/api/tokens/${preToken}/holders`);
         const data = await response.json();
-        return data.data.slice(0, 5); // Return top 5 holders
+        return data.data.slice(0, 10); // Return top 10 holders
       } catch (error) {
         console.error('Error fetching holders:', error);
         return []; // Return empty array on error
@@ -128,11 +128,11 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
             <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
             <p><strong>Chain:</strong> ${item.chain}</p>
             <p><strong>Market Cap:</strong> $${marketCap}</p> <!-- Display Market Cap -->
-            <p><strong>Top 5 Holder %:</strong> ${topHoldersPercentage}% 
+            <p><strong>Top 10 Holder %:</strong> ${topHoldersPercentage}% 
               <button onclick="showTopHolders('${item.preToken}')" style="background: none; border: none; cursor: pointer;">
                 <img src="https://i.postimg.cc/s2zTj2XX/magnify.png" alt="View Top Holders" style="width: 20px; height: 20px; vertical-align: middle;">
               </button>
-            </p> <!-- Display Top 5 Holder Percentage -->
+            </p> <!-- Display Top 10 Holder Percentage -->
             <div class="user-links">
               ${generateUserLinks(item.socials.USER_LINKS)}
             </div>
