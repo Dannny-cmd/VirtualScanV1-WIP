@@ -1,4 +1,4 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=500';
+const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=200';
     const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
     let allItems = [];
     let uniqueChains = new Set();
@@ -55,9 +55,9 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
 
     function formatTokenAmount(amount) {
       if (amount >= 1_000_000) {
-        return (amount / 1_000_000).toFixed(2) + 'M'; // Format to millions
+        return (amount / 1_000_000).toFixed(1) + 'M'; // Format to millions with 1 decimal place
       } else if (amount >= 1_000) {
-        return (amount / 1_000).toFixed(2) + 'K'; // Format to thousands
+        return (amount / 1_000).toFixed(1) + 'K'; // Format to thousands with 1 decimal place
       }
       return amount.toString(); // Return as is for smaller amounts
     }
@@ -156,7 +156,7 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       const totalHeld = holders.reduce((total, holder) => total + holder[1], 0); // Calculate total held by top holders
       const formattedHolders = holders.map(holder => {
         const formattedAmount = formatTokenAmount(holder[1]);
-        const percentageHeld = ((holder[1] / totalHeld) * 100).toFixed(2); // Calculate percentage held
+        const percentageHeld = ((holder[1] / totalHeld) * 100).toFixed(2); // Calculate percentage held with 2 decimal places
         return `<li>${holder[0]}: ${formattedAmount} (${percentageHeld}%)</li>`;
       }).join('');
       const modalBody = document.getElementById('modal-body');
