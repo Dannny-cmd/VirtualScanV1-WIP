@@ -1,4 +1,4 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=500';
+const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=200';
     const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
     let allItems = [];
     let uniqueChains = new Set();
@@ -145,8 +145,17 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
     async function showTopHolders(preToken) {
       const holders = await fetchHolders(preToken);
       const holdersList = holders.map(holder => `<li>${holder[0]}: ${holder[1]}</li>`).join('');
-      const holdersHtml = `<ul>${holdersList}</ul>`;
-      showPopup(`Top 5 Holders for ${preToken}: ${holdersHtml}`);
+      const modalBody = document.getElementById('modal-body');
+      modalBody.innerHTML = `<ul>${holdersList}</ul>`;
+      openModal();
+    }
+
+    function openModal() {
+      document.getElementById('modal').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
     }
 
     function populateChainFilter(items) {
