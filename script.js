@@ -1,4 +1,4 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=200';
+const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=500';
     const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
     let allItems = [];
     let uniqueChains = new Set();
@@ -51,6 +51,15 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       } catch (error) {
         console.error('Error fetching data:', error);
       }
+    }
+
+    function formatTokenAmount(amount) {
+      if (amount >= 1_000_000) {
+        return (amount / 1_000_000).toFixed(2) + 'M'; // Format to millions
+      } else if (amount >= 1_000) {
+        return (amount / 1_000).toFixed(2) + 'K'; // Format to thousands
+      }
+      return amount.toString(); // Return as is for smaller amounts
     }
 
     function generateUserLinks(links) {
@@ -144,9 +153,14 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
 
     async function showTopHolders(preToken) {
       const holders = await fetchHolders(preToken);
-      const holdersList = holders.map(holder => `<li>${holder[0]}: ${holder[1]}</li>`).join('');
+      const totalHeld = holders.reduce((total, holder) => total + holder[1], 0); // Calculate total held by top holders
+      const formattedHolders = holders.map(holder => {
+        const formattedAmount = formatTokenAmount(holder[1]);
+        const percentageHeld = ((holder[1] / totalHeld) * 100).toFixed(2); // Calculate percentage held
+        return `<li>${holder[0]}: ${formattedAmount} (${percentageHeld}%)</li>`;
+      }).join('');
       const modalBody = document.getElementById('modal-body');
-      modalBody.innerHTML = `<ul>${holdersList}</ul>`;
+      modalBody.innerHTML = `<ul>${formattedHolders}</ul>`;
       openModal();
     }
 
