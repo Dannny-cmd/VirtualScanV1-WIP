@@ -1,3 +1,5 @@
+/* Existing styles... */
+
 body {
   font-family: 'Helvetica', 'Arial', sans-serif;
   margin: 0;
@@ -32,7 +34,7 @@ body {
   display: flex; /* Change to flex for side-by-side layout */
   align-items: center; /* Align items vertically */
   position: absolute; /* Use absolute positioning */
-  top: 275px; /* Adjust this value to move down */
+  top: 290px; /* Adjust this value to move down */
   right: 20px; /* Align to the right */
 }
 
@@ -196,4 +198,13 @@ h1 {
 /* Adjust font size for CA and Dev Wallet */
 .copyable-text strong {
   font-size: 0.9em; /* Same size as holders, chain, etc. */
+}
+
+/* Refresh Button Styles */
+.refresh-button {
+  width: 30px; /* Increased width for better visibility */
+  height: 30px; /* Increased height for better visibility */
+  cursor: pointer; /* Change cursor to pointer */
+  margin-left: 10px; /* Add some space to the left */
+	margin-top: 5px
 }

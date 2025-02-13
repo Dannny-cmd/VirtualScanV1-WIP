@@ -1,46 +1,48 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Virtuals Scan</title>
-      <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <img src="https://i.postimg.cc/zBT95V8x/Vscan-logo-removebg-preview.png" alt="Vscan Logo" class="logo">
-          <div class="filters">
-            <input type="text" id="search-input" placeholder="Search for any Virtuals token" class="search-input">
-            <select id="chain-filter" class="chain-filter">
-              <option value="">All Chains</option>
-            </select>
-          </div>
-        </div>
-        <h1>Virtuals Scan</h1>
-        
-        <!-- Sorting Options -->
-        <div class="sorting-options">
-          <label>
-            <input type="radio" name="sort" value="newest" checked> Newest
-          </label>
-          <label>
-            <input type="radio" name="sort" value="marketCap"> Market Cap
-          </label>
-        </div>
-        
-        <div id="data-container" class="data-container"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtuals Scan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://i.postimg.cc/zBT95V8x/Vscan-logo-removebg-preview.png" alt="Vscan Logo" class="logo">
+      <div class="filters">
+        <input type="text" id="search-input" placeholder="Search for any Virtuals token" class="search-input">
+        <select id="chain-filter" class="chain-filter">
+          <option value="">All Chains</option>
+        </select>
       </div>
+    </div>
+    <h1>Virtuals Scan</h1>
+    
+    <!-- Sorting Options -->
+    <div class="sorting-options">
+      <label>
+        <input type="radio" name="sort" value="newest" checked> Newest
+      </label>
+      <label>
+        <input type="radio" name="sort" value="marketCap"> Market Cap
+      </label>
+      <!-- Refresh Button -->
+      <img src="https://i.postimg.cc/253XTw6R/refresh.webp" alt="Refresh" class="refresh-button" onclick="fetchData()">
+    </div>
+    
+    <div id="data-container" class="data-container"></div>
+  </div>
 
-      <!-- Modal for Top Holders -->
-      <div id="modal" class="modal">
-        <div class="modal-content">
-          <span class="close" onclick="closeModal()">&times;</span>
-          <h2>Top 10 Holders</h2>
-          <div id="modal-body"></div>
-        </div>
-      </div>
+  <!-- Modal for Top Holders -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Top 10 Holders</h2>
+      <div id="modal-body"></div>
+    </div>
+  </div>
 
-      <script src="script.js"></script>
-    </body>
-    </html>
+  <script src="script.js"></script>
+</body>
+</html>
