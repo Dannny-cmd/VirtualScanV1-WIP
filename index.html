@@ -18,6 +18,17 @@
           </div>
         </div>
         <h1>Virtuals Scan</h1>
+        
+        <!-- Sorting Options -->
+        <div class="sorting-options">
+          <label>
+            <input type="radio" name="sort" value="newest" checked> Newest/Created At
+          </label>
+          <label>
+            <input type="radio" name="sort" value="marketCap"> Highest Market Cap
+          </label>
+        </div>
+        
         <div id="data-container" class="data-container"></div>
       </div>
 
@@ -25,7 +36,7 @@
       <div id="modal" class="modal">
         <div class="modal-content">
           <span class="close" onclick="closeModal()">&times;</span>
-          <h2>Top 10 Holders</h2> <!-- Updated title to Top 10 Holders -->
+          <h2>Top 10 Holders</h2>
           <div id="modal-body"></div>
         </div>
       </div>

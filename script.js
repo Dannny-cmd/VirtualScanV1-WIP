@@ -8,7 +8,7 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       try {
         const response = await fetch(coinLoreUrl);
         const data = await response.json();
-        priceUsd = parseFloat(data[0].price_usd); // Get the price_usd
+        priceUsd = parseFloat(data[0].price_usd);
       } catch (error) {
         console.error('Error fetching price:', error);
       }
@@ -18,10 +18,10 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       try {
         const response = await fetch(`https://api.virtuals.io/api/tokens/${preToken}/holders`);
         const data = await response.json();
-        return data.data.slice(0, 10); // Return top 10 holders
+        return data.data.slice(0, 10);
       } catch (error) {
         console.error('Error fetching holders:', error);
-        return []; // Return empty array on error
+        return [];
       }
     }
 
@@ -31,35 +31,23 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
     }
 
     async function fetchData() {
-      await fetchPrice(); // Fetch the price first
+      await fetchPrice();
       try {
         const response = await fetch(apiUrl);
         const data = await response.json();
-        allItems = data.data; // Store all items for filtering
+        allItems = data.data;
 
-        // Fetch all holders in parallel
         const holdersData = await fetchAllHolders(allItems);
-        
-        // Combine holders data with items
         allItems = allItems.map((item, index) => ({
           ...item,
-          topHolders: holdersData[index] // Add top holders to each item
+          topHolders: holdersData[index]
         }));
 
         displayData(allItems);
-        populateChainFilter(allItems); // Populate chain filter after fetching data
+        populateChainFilter(allItems);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
-    }
-
-    function formatTokenAmount(amount) {
-      if (amount >= 1_000_000) {
-        return (amount / 1_000_000).toFixed(1) + 'M'; // Format to millions with 1 decimal place
-      } else if (amount >= 1_000) {
-        return (amount / 1_000).toFixed(1) + 'K'; // Format to thousands with 1 decimal place
-      }
-      return amount.toString(); // Return as is for smaller amounts
     }
 
     function generateUserLinks(links) {
@@ -72,43 +60,24 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       return userLinksHtml;
     }
 
-    function copyToClipboard(text) {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
-          showPopup('Copied to clipboard: ' + text);
-        }).catch(err => {
-          console.error('Error copying text: ', err);
-          fallbackCopyToClipboard(text); // Fallback method
-        });
-      } else {
-        fallbackCopyToClipboard(text); // Fallback method
+    function sortData(items) {
+      const sortOption = document.querySelector('input[name="sort"]:checked').value;
+      if (sortOption === 'marketCap') {
+        return items.sort((a, b) => parseFloat(b.mcapInVirtual) - parseFloat(a.mcapInVirtual));
       }
-    }
-
-    function fallbackCopyToClipboard(text) {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        showPopup('Copied to clipboard: ' + text);
-      } catch (err) {
-        console.error('Fallback: Oops, unable to copy', err);
-      }
-      document.body.removeChild(textArea);
+      return items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     function displayData(items) {
       const container = document.getElementById('data-container');
-      container.innerHTML = ''; // Clear previous items
-      items.forEach(item => {
+      container.innerHTML = '';
+      const sortedItems = sortData(items);
+      sortedItems.forEach(item => {
         const mcapInVirtual = parseFloat(item.mcapInVirtual);
-        const marketCap = (isNaN(mcapInVirtual) ? 'N/A' : (mcapInVirtual * priceUsd).toFixed(2)); // Calculate Market Cap with validation
+        const marketCap = (isNaN(mcapInVirtual) ? 'N/A' : (mcapInVirtual * priceUsd).toFixed(2));
 
-        // Calculate total of top holders
-        const totalTopHolders = item.topHolders.reduce((total, holder) => total + holder[1], 0); // Sum the amounts of top holders
-        const topHoldersPercentage = ((totalTopHolders / 1_000_000_000) * 100).toFixed(2); // Calculate percentage of 1 billion
+        const totalTopHolders = item.topHolders.reduce((total, holder) => total + holder[1], 0);
+        const topHoldersPercentage = ((totalTopHolders / 1_000_000_000) * 100).toFixed(2);
 
         const itemDiv = document.createElement('div');
         itemDiv.className = 'item';
@@ -127,12 +96,12 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
             <p class="copyable-text" onclick="copyToClipboard('${item.walletAddress}')"><strong>Dev Wallet:</strong> ${item.walletAddress}</p>
             <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
             <p><strong>Chain:</strong> ${item.chain}</p>
-            <p><strong>Market Cap:</strong> $${marketCap}</p> <!-- Display Market Cap -->
+            <p><strong>Market Cap:</strong> $${marketCap}</p>
             <p><strong>Top 10 Holder %:</strong> ${topHoldersPercentage}% 
               <button onclick="showTopHolders('${item.preToken}')" style="background: none; border: none; cursor: pointer;">
                 <img src="https://i.postimg.cc/s2zTj2XX/magnify.png" alt="View Top Holders" style="width: 20px; height: 20px; vertical-align: middle;">
               </button>
-            </p> <!-- Display Top 10 Holder Percentage -->
+            </p>
             <div class="user-links">
               ${generateUserLinks(item.socials.USER_LINKS)}
             </div>
@@ -151,32 +120,13 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       });
     }
 
-    async function showTopHolders(preToken) {
-      const holders = await fetchHolders(preToken);
-      const totalHeld = holders.reduce((total, holder) => total + holder[1], 0); // Calculate total held by top holders
-      const formattedHolders = holders.map(holder => {
-        const formattedAmount = formatTokenAmount(holder[1]);
-        const percentageHeld = ((holder[1] / totalHeld) * 100).toFixed(2); // Calculate percentage held with 2 decimal places
-        return `<li>${holder[0]}: ${formattedAmount} (${percentageHeld}%)</li>`;
-      }).join('');
-      const modalBody = document.getElementById('modal-body');
-      modalBody.innerHTML = `<ul>${formattedHolders}</ul>`;
-      openModal();
-    }
-
-    function openModal() {
-      document.getElementById('modal').style.display = 'block';
-    }
-
-    function closeModal() {
-      document.getElementById('modal').style.display = 'none';
-    }
-
     function populateChainFilter(items) {
       const chainFilter = document.getElementById('chain-filter');
+      uniqueChains.clear();
       items.forEach(item => {
-        uniqueChains.add(item.chain); // Collect unique chain values
+        uniqueChains.add(item.chain);
       });
+      chainFilter.innerHTML = '<option value="">All Chains</option>';
       uniqueChains.forEach(chain => {
         const option = document.createElement('option');
         option.value = chain;
@@ -196,17 +146,26 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       displayData(filteredItems);
     }
 
-    function showPopup(message) {
-      const popup = document.createElement('div');
-      popup.className = 'popup';
-      popup.innerHTML = message; // Allow HTML content
-      document.body.appendChild(popup);
-      setTimeout(() => {
-        document.body.removeChild(popup);
-      }, 2000); // Remove after 2 seconds
+    function showTopHolders(preToken) {
+      const holders = allItems.find(item => item.preToken === preToken).topHolders;
+      const modalBody = document.getElementById('modal-body');
+      modalBody.innerHTML = holders.map(holder => `<p>${holder[0]}: ${holder[1]}</p>`).join('');
+      openModal();
     }
+
+    function openModal() {
+      document.getElementById('modal').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    document.querySelectorAll('input[name="sort"]').forEach(input => {
+      input.addEventListener('change', () => displayData(allItems));
+    });
 
     document.getElementById('search-input').addEventListener('input', filterData);
     document.getElementById('chain-filter').addEventListener('change', filterData);
 
-    fetchData(); // Ensure this is called to load data initially
+    fetchData();
