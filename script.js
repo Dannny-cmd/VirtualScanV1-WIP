@@ -50,6 +50,34 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       }
     }
 
+    function timeAgo(dateString) {
+      const now = new Date();
+      const createdAt = new Date(dateString);
+      const seconds = Math.floor((now - createdAt) / 1000);
+      let interval = Math.floor(seconds / 31536000);
+
+      if (interval >= 1) {
+        return interval === 1 ? "1 year ago" : interval + " years ago";
+      }
+      interval = Math.floor(seconds / 2592000);
+      if (interval >= 1) {
+        return interval === 1 ? "1 month ago" : interval + " months ago";
+      }
+      interval = Math.floor(seconds / 86400);
+      if (interval >= 1) {
+        return interval === 1 ? "1 day ago" : interval + " days ago";
+      }
+      interval = Math.floor(seconds / 3600);
+      if (interval >= 1) {
+        return interval === 1 ? "1 hour ago" : interval + " hours ago";
+      }
+      interval = Math.floor(seconds / 60);
+      if (interval >= 1) {
+        return interval === 1 ? "1 minute ago" : interval + " minutes ago";
+      }
+      return seconds === 1 ? "1 second ago" : seconds + " seconds ago";
+    }
+
     function generateUserLinks(links) {
       let userLinksHtml = '';
       for (const [key, value] of Object.entries(links)) {
@@ -90,7 +118,7 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
             <p>
               <img src="https://i.postimg.cc/GpCVcvh6/icon-design-black-and-white-timer-symbol-alarm-clocks-removebg-preview.png" 
                    alt="Created At" title="Created At" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
-              ${new Date(item.createdAt).toLocaleString()}
+              ${timeAgo(item.createdAt)} <!-- Use the timeAgo function here -->
             </p>
             <p class="copyable-text" onclick="copyToClipboard('${item.preToken}')"><strong>CA:</strong> ${item.preToken}</p>
             <p class="copyable-text" onclick="copyToClipboard('${item.walletAddress}')"><strong>Dev Wallet:</strong> ${item.walletAddress}</p>
