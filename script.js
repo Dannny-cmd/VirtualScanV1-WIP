@@ -1,4 +1,4 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=200';
+const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100';
     const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
     let allItems = [];
     let uniqueChains = new Set();
