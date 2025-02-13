@@ -30,13 +30,20 @@ async function fetchAllHolders(tokens) {
   return Promise.all(holderPromises);
 }
 
-async function fetchData() {
+async function fetchData(searchTerm = '') {
   await fetchPrice();
+  let url = apiUrl;
+
+  if (searchTerm) {
+    url = `https://api.virtuals.io/api/virtuals?filters[status]=3&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters[$or][2][tokenAddress][$contains]=${searchTerm}&filters[$or][3][preToken][$contains]=${searchTerm}&sort[0]=totalValueLocked%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=10`;
+  }
+
   try {
-    const response = await fetch(apiUrl);
+    const response = await fetch(url);
     const data = await response.json();
     allItems = data.data;
 
+    // Fetch holders data for the filtered items
     const holdersData = await fetchAllHolders(allItems);
     allItems = allItems.map((item, index) => ({
       ...item,
@@ -88,11 +95,16 @@ function timeAgo(dateString) {
 }
 
 function formatAddress(address) {
+  if (!address || typeof address !== 'string') return ''; // Return empty string if address is null or not a string
   if (address.length <= 8) return address; // Return as is if too short
   return `${address.slice(0, 4)}...${address.slice(-4)}`; // Format address
 }
 
 function generateUserLinks(links) {
+  if (!links || typeof links !== 'object') {
+    return ''; // Return empty string if links is undefined or not an object
+  }
+  
   let userLinksHtml = '';
   for (const [key, value] of Object.entries(links)) {
     if (value) {
@@ -145,7 +157,7 @@ function displayData(items) {
           </button>
         </p>
         <div class="user-links">
-          ${generateUserLinks(item.socials.USER_LINKS)}
+          ${generateUserLinks(item.socials && typeof item.socials === 'object' ? item.socials.USER_LINKS : {})}
         </div>
         <div class="trade-links">
           <a href="https://app.virtuals.io/prototypes/${item.preToken}" target="_blank" class="trade-link">Trade on Virtuals</a>
@@ -231,7 +243,13 @@ document.querySelectorAll('input[name="sort"]').forEach(input => {
   input.addEventListener('change', () => displayData(allItems));
 });
 
-document.getElementById('search-input').addEventListener('input', filterData);
+document.getElementById('search-input').addEventListener('keypress', (event) => {
+  if (event.key === 'Enter') {
+    const searchTerm = event.target.value.trim();
+    fetchData(searchTerm); // Fetch data with the search term
+  }
+});
+
 document.getElementById('chain-filter').addEventListener('change', filterData);
 
 fetchData();
