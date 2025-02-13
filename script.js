@@ -87,6 +87,11 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       return seconds === 1 ? "1 second ago" : seconds + " seconds ago";
     }
 
+    function formatAddress(address) {
+      if (address.length <= 8) return address; // Return as is if too short
+      return `${address.slice(0, 4)}...${address.slice(-4)}`; // Format address
+    }
+
     function generateUserLinks(links) {
       let userLinksHtml = '';
       for (const [key, value] of Object.entries(links)) {
@@ -129,8 +134,8 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
                    alt="Created At" title="Created At" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
               ${timeAgo(item.createdAt)} <!-- Use the timeAgo function here -->
             </p>
-            <p class="copyable-text" onclick="copyToClipboard('${item.preToken}')"><strong>CA:</strong> ${item.preToken}</p>
-            <p class="copyable-text" onclick="copyToClipboard('${item.walletAddress}')"><strong>Dev Wallet:</strong> ${item.walletAddress}</p>
+            <div class="copyable-text" onclick="copyToClipboard('${item.preToken}')"><strong>CA:</strong> ${formatAddress(item.preToken)}</div>
+            <div class="copyable-text" onclick="copyToClipboard('${item.walletAddress}')"><strong>Dev Wallet:</strong> ${formatAddress(item.walletAddress)}</div>
             <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
             <p><strong>Chain:</strong> ${item.chain}</p>
             <p><strong>Market Cap:</strong> ${marketCap}</p> <!-- Use formatted market cap -->
