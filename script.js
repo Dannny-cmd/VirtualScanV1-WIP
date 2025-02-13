@@ -50,6 +50,15 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       }
     }
 
+    function formatMarketCap(value) {
+      if (value >= 1e6) {
+        return `$${(value / 1e6).toFixed(1)}M`; // Millions
+      } else if (value >= 1e3) {
+        return `$${(value / 1e3).toFixed(1)}k`; // Thousands
+      }
+      return `$${value.toFixed(2)}`; // Default to two decimal places
+    }
+
     function timeAgo(dateString) {
       const now = new Date();
       const createdAt = new Date(dateString);
@@ -102,7 +111,7 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
       const sortedItems = sortData(items);
       sortedItems.forEach(item => {
         const mcapInVirtual = parseFloat(item.mcapInVirtual);
-        const marketCap = (isNaN(mcapInVirtual) ? 'N/A' : (mcapInVirtual * priceUsd).toFixed(2));
+        const marketCap = formatMarketCap(mcapInVirtual * priceUsd); // Format market cap
 
         const totalTopHolders = item.topHolders.reduce((total, holder) => total + holder[1], 0);
         const topHoldersPercentage = ((totalTopHolders / 1_000_000_000) * 100).toFixed(2);
@@ -124,7 +133,7 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
             <p class="copyable-text" onclick="copyToClipboard('${item.walletAddress}')"><strong>Dev Wallet:</strong> ${item.walletAddress}</p>
             <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
             <p><strong>Chain:</strong> ${item.chain}</p>
-            <p><strong>Market Cap:</strong> $${marketCap}</p>
+            <p><strong>Market Cap:</strong> ${marketCap}</p> <!-- Use formatted market cap -->
             <p><strong>Top 10 Holder %:</strong> ${topHoldersPercentage}% 
               <button onclick="showTopHolders('${item.preToken}')" style="background: none; border: none; cursor: pointer;">
                 <img src="https://i.postimg.cc/s2zTj2XX/magnify.png" alt="View Top Holders" style="width: 20px; height: 20px; vertical-align: middle;">
