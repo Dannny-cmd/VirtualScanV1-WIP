@@ -40,7 +40,7 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
         const holdersData = await fetchAllHolders(allItems);
         allItems = allItems.map((item, index) => ({
           ...item,
-          topHolders: holdersData[index]
+          topHolders: holdersData[index] || [] // Ensure topHolders is always defined
         }));
 
         displayData(allItems);
@@ -159,6 +159,30 @@ const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=c
 
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
+    }
+
+    function copyToClipboard(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showCopyNotification('Copied to clipboard: ' + text); // Show notification
+      } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function showCopyNotification(message) {
+      const popup = document.createElement('div');
+      popup.className = 'copy-popup';
+      popup.innerText = message;
+      document.body.appendChild(popup);
+      setTimeout(() => {
+        document.body.removeChild(popup);
+      }, 2000); // Remove after 2 seconds
     }
 
     document.querySelectorAll('input[name="sort"]').forEach(input => {
