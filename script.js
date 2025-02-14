@@ -1,4 +1,5 @@
-const apiUrl = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100';
+const apiUrlPrototype = 'https://api.virtuals.io/api/virtuals?filters[status]=1&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100';
+const apiUrlSentient = 'https://api.virtuals.io/api/virtuals?filters[status]=2&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100';
 const coinLoreUrl = 'https://api.coinlore.net/api/ticker/?id=127083';
 let allItems = [];
 let uniqueChains = new Set();
@@ -35,10 +36,10 @@ async function fetchAllHolders(tokens) {
 
 async function fetchData(searchTerm = '') {
   await fetchPrice();
-  let url = apiUrl;
+  let url = document.querySelector('input[name="type"]:checked').value === 'sentient' ? apiUrlSentient : apiUrlPrototype;
 
   if (searchTerm) {
-    url = `https://api.virtuals.io/api/virtuals?filters[status]=3&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters[$or][2][tokenAddress][$contains]=${searchTerm}&filters[$or][3][preToken][$contains]=${searchTerm}&sort[0]=totalValueLocked%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=10`;
+    url += `&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters[$or][2][tokenAddress][$contains]=${searchTerm}&filters[$or][3][preToken][$contains]=${searchTerm}`;
   }
 
   try {
@@ -268,6 +269,14 @@ function showCopyNotification(message) {
 
 document.querySelectorAll('input[name="sort"]').forEach(input => {
   input.addEventListener('change', () => displayData(allItems));
+});
+
+// Add event listener for radio buttons
+document.querySelectorAll('input[name="type"]').forEach(input => {
+  input.addEventListener('change', () => {
+    const searchTerm = document.getElementById('search-input').value.trim();
+    fetchData(searchTerm); // Fetch data with the current search term
+  });
 });
 
 document.getElementById('search-input').addEventListener('keypress', (event) => {
