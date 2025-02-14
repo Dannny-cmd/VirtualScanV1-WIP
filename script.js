@@ -76,7 +76,9 @@ function formatAmount(value) {
   let formattedValue;
   let percentage = ((value / 1_000_000_000) * 100).toFixed(2); // Calculate percentage of 1 billion
 
-  if (value >= 1e6) {
+  if (value < 10000) {
+    formattedValue = value.toFixed(9); // Full number with 9 decimal places
+  } else if (value >= 1e6) {
     formattedValue = `${(value / 1e6).toFixed(1)}m`; // Format as millions
   } else if (value >= 1e3) {
     formattedValue = `${(value / 1e3).toFixed(1)}k`; // Format as thousands
