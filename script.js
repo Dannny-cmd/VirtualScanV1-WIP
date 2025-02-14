@@ -41,7 +41,10 @@ async function fetchData(searchTerm = '') {
   try {
     const response = await fetch(url);
     const data = await response.json();
-    allItems = data.data;
+    allItems = data.data.map(item => ({
+      ...item,
+      tokenAddress: item.tokenAddress !== null ? item.tokenAddress : item.preToken // Use tokenAddress if not null, otherwise use preToken
+    }));
 
     // Fetch holders data for the filtered items
     const holdersData = await fetchAllHolders(allItems);
@@ -146,7 +149,7 @@ function displayData(items) {
                alt="Created At" title="Created At" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
           ${timeAgo(item.createdAt)} <!-- Use the timeAgo function here -->
         </p>
-        <div class="copyable-text" onclick="copyToClipboard('${item.preToken}')"><strong>CA:</strong> ${formatAddress(item.preToken)}</div>
+        <div class="copyable-text" onclick="copyToClipboard('${item.tokenAddress || item.preToken}')"><strong>CA:</strong> ${formatAddress(item.tokenAddress || item.preToken)}</div>
         <div class="copyable-text" onclick="copyToClipboard('${item.walletAddress}')"><strong>Dev Wallet:</strong> ${formatAddress(item.walletAddress)}</div>
         <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
         <p><strong>Chain:</strong> ${item.chain}</p>
