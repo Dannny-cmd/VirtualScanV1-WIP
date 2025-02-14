@@ -185,7 +185,7 @@ function displayData(items) {
         </div>
         <div class="trade-links">
           <a href="https://app.virtuals.io/prototypes/${item.preToken}" target="_blank" class="trade-link">Trade on Virtuals</a>
-          <a href="${item.tokenAddress ? `https://basescan.org/address/${item.tokenAddress}` : `https://solscan.io/token/${item.preToken}`}" target="_blank" class="trade-link">${item.chain === 'SOLANA' ? 'Solscan' : 'Basescan'}</a>
+          <a href="${item.chain === 'SOLANA' ? `https://solscan.io/token/${item.tokenAddress}` : `https://basescan.org/address/${item.tokenAddress}`}" target="_blank" class="trade-link">${item.chain === 'SOLANA' ? 'Solscan' : 'Basescan'}</a>
         </div>
       </div>
     `;
