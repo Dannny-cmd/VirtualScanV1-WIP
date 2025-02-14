@@ -26,7 +26,10 @@ async function fetchHolders(preToken) {
 }
 
 async function fetchAllHolders(tokens) {
-  const holderPromises = tokens.map(token => fetchHolders(token.preToken));
+  const holderPromises = tokens.map(token => {
+    const tokenToUse = token.tokenAddress || token.preToken; // Use tokenAddress if available, otherwise use preToken
+    return fetchHolders(tokenToUse);
+  });
   return Promise.all(holderPromises);
 }
 
