@@ -72,6 +72,21 @@ function formatMarketCap(value) {
   return `$${value.toFixed(2)}`; // Default to two decimal places
 }
 
+function formatAmount(value) {
+  let formattedValue;
+  let percentage = ((value / 1_000_000_000) * 100).toFixed(2); // Calculate percentage of 1 billion
+
+  if (value >= 1e6) {
+    formattedValue = `${(value / 1e6).toFixed(1)}m`; // Format as millions
+  } else if (value >= 1e3) {
+    formattedValue = `${(value / 1e3).toFixed(1)}k`; // Format as thousands
+  } else {
+    formattedValue = `${value.toFixed(1)}`; // Format as is with one decimal place
+  }
+
+  return `${formattedValue} (${percentage}%)`; // Return formatted value with percentage
+}
+
 function timeAgo(dateString) {
   const now = new Date();
   const createdAt = new Date(dateString);
@@ -207,9 +222,18 @@ function filterData() {
 }
 
 function showTopHolders(preToken) {
-  const holders = allItems.find(item => item.preToken === preToken).topHolders;
+  const item = allItems.find(item => item.preToken === preToken);
+  if (!item) {
+    console.error('Token not found:', preToken);
+    return; // Exit if the item is not found
+  }
+  
+  const holders = item.topHolders;
   const modalBody = document.getElementById('modal-body');
-  modalBody.innerHTML = holders.map(holder => `<p>${holder[0]}: ${holder[1]}</p>`).join('');
+  modalBody.innerHTML = holders.map(holder => {
+    const formattedAmount = formatAmount(holder[1]); // Format the amount
+    return `<p>${holder[0]}: ${formattedAmount}</p>`; // Use formatted amount
+  }).join('');
   openModal();
 }
 
