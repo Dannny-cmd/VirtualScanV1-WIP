@@ -37,10 +37,20 @@ async function fetchAllHolders(tokens) {
 async function fetchData(searchTerm = '') {
   showLoadingScreen(); // Show loading screen
   await fetchPrice();
-  let url = document.querySelector('input[name="type"]:checked').value === 'sentient' ? apiUrlSentient : apiUrlPrototype;
+  let url;
 
   if (searchTerm) {
-    url += `&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters[$or][2][tokenAddress][$contains]=${searchTerm}&filters[$or][3][preToken][$contains]=${searchTerm}`;
+    // Disable the radio buttons
+    document.querySelectorAll('input[name="type"]').forEach(input => {
+      input.disabled = true;
+      input.parentElement.style.color = 'grey'; // Grey out the labels
+    });
+
+    url = `https://api.virtuals.io/api/virtuals?filters&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters[$or][2][tokenAddress][$contains]=${searchTerm}&filters[$or][3][preToken][$contains]=${searchTerm}`;
+  } else {
+    const selectedType = document.querySelector('input[name="type"]:checked').value;
+    url = selectedType === 'sentient' ? apiUrlSentient : apiUrlPrototype;
+    enableRadioButtons(); // Re-enable radio buttons when search term is cleared
   }
 
   try {
@@ -286,10 +296,6 @@ function showCopyNotification(message) {
   }, 2000); // Remove after 2 seconds
 }
 
-document.querySelectorAll('input[name="sort"]').forEach(input => {
-  input.addEventListener('change', () => displayData(allItems));
-});
-
 // Add event listener for radio buttons
 document.querySelectorAll('input[name="type"]').forEach(input => {
   input.addEventListener('change', () => {
@@ -298,7 +304,14 @@ document.querySelectorAll('input[name="type"]').forEach(input => {
   });
 });
 
-// Debounce the search input
+// Add event listener for sorting buttons
+document.querySelectorAll('input[name="sort"]').forEach(input => {
+  input.addEventListener('change', () => {
+    displayData(allItems); // Re-display data when sorting option changes
+  });
+});
+
+// Add event listener for search input with debounce
 const debouncedFetchData = debounce((searchTerm) => fetchData(searchTerm), 500);
 document.getElementById('search-input').addEventListener('input', (event) => {
   const searchTerm = event.target.value.trim();
@@ -314,8 +327,13 @@ document.getElementById('clear-search').addEventListener('click', () => {
   fetchData(); // Fetch all data again
 });
 
-// Chain filter event listener
-document.getElementById('chain-filter').addEventListener('change', filterData);
+// Enable radio buttons function
+function enableRadioButtons() {
+  document.querySelectorAll('input[name="type"]').forEach(input => {
+    input.disabled = false;
+    input.parentElement.style.color = ''; // Reset label color
+  });
+}
 
 // Initial data fetch
 fetchData();
