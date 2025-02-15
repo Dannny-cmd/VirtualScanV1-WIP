@@ -49,7 +49,6 @@ body {
   border-radius: 4px;
   background: #4c4c4c;
   color: #ffffff;
-	margin-bottom: 10px;
 }
 
 .clear-button {
@@ -80,11 +79,11 @@ h1 {
 .sorting-options {
   display: flex;
   align-items: center;
-  margin-bottom: 1px;
+  margin-bottom: 10px;
 }
 
 .sorting-options label {
-  margin-right: 5px; /* Add margin for spacing */
+  margin-right: 10px; /* Add margin for spacing */
 }
 
 .chain-filter {
@@ -95,7 +94,6 @@ h1 {
   background: #4c4c4c;
   color: #ffffff;
   margin-left: 1px; /* Add margin for spacing */
-	margin-bottom: 10px;
 }
 
 .data-container {
