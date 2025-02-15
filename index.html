@@ -24,19 +24,23 @@
         
         <!-- Sorting Options -->
         <div class="sorting-options">
-          <label>
-            <input type="radio" name="sort" value="newest" checked> Newest
-          </label>
-          <label>
-            <input type="radio" name="sort" value="marketCap"> Market Cap
-          </label>
-          <span>|  </span> <!-- Added pipe symbol -->
-          <label>
-            <input type="radio" name="type" value="prototype" checked> Prototype
-          </label>
-          <label>
-            <input type="radio" name="type" value="sentient"> Sentient
-          </label>
+          <div class="sort-group">
+            <label>
+              <input type="radio" name="sort" value="newest" checked> Newest
+            </label>
+            <label>
+              <input type="radio" name="sort" value="marketCap"> Market Cap
+            </label>
+          </div>
+          <span class="pipe-symbol">|</span> <!-- Pipe symbol with custom padding -->
+          <div class="type-group">
+            <label>
+              <input type="radio" name="type" value="prototype" checked> Prototype
+            </label>
+            <label>
+              <input type="radio" name="type" value="sentient"> Sentient
+            </label>
+          </div>
           <!-- Refresh Button -->
           <img src="https://i.postimg.cc/253XTw6R/refresh.webp" alt="Refresh" class="refresh-button" onclick="fetchData()">
         </div>
