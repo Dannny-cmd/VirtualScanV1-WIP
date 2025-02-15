@@ -330,6 +330,14 @@ document.getElementById('clear-search').addEventListener('click', () => {
   fetchData(); // Fetch all data again
 });
 
+// Add event listener for refresh button
+document.querySelector('.refresh-button').addEventListener('click', () => {
+  const searchInput = document.getElementById('search-input');
+  searchInput.value = '';
+  document.getElementById('clear-search').style.display = 'none'; // Hide clear button
+  fetchData(); // Fetch all data again
+});
+
 // Enable radio buttons function
 function enableRadioButtons() {
   document.querySelectorAll('input[name="type"]').forEach(input => {
