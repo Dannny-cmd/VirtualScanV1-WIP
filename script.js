@@ -248,6 +248,9 @@ function filterData() {
   displayData(filteredItems);
 }
 
+// Add event listener for chain filter
+document.getElementById('chain-filter').addEventListener('change', filterData);
+
 function showTopHolders(preToken) {
   const item = allItems.find(item => item.preToken === preToken);
   if (!item) {
