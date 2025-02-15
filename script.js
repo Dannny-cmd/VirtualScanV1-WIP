@@ -302,7 +302,16 @@ document.querySelectorAll('input[name="type"]').forEach(input => {
 const debouncedFetchData = debounce((searchTerm) => fetchData(searchTerm), 500);
 document.getElementById('search-input').addEventListener('input', (event) => {
   const searchTerm = event.target.value.trim();
+  document.getElementById('clear-search').style.display = searchTerm ? 'block' : 'none'; // Show or hide clear button
   debouncedFetchData(searchTerm); // Use debounced function
+});
+
+// Clear search input
+document.getElementById('clear-search').addEventListener('click', () => {
+  const searchInput = document.getElementById('search-input');
+  searchInput.value = '';
+  document.getElementById('clear-search').style.display = 'none'; // Hide clear button
+  fetchData(); // Fetch all data again
 });
 
 // Chain filter event listener
