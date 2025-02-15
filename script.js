@@ -67,6 +67,14 @@ async function fetchData(searchTerm = '') {
   }
 }
 
+function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
 function showLoadingScreen() {
   document.getElementById('loading-screen').style.display = 'flex';
 }
@@ -290,10 +298,11 @@ document.querySelectorAll('input[name="type"]').forEach(input => {
   });
 });
 
-// Update search input event listener
+// Debounce the search input
+const debouncedFetchData = debounce((searchTerm) => fetchData(searchTerm), 500);
 document.getElementById('search-input').addEventListener('input', (event) => {
   const searchTerm = event.target.value.trim();
-  fetchData(searchTerm); // Fetch data with the search term
+  debouncedFetchData(searchTerm); // Use debounced function
 });
 
 // Chain filter event listener
