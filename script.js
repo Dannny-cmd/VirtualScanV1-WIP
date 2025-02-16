@@ -173,6 +173,8 @@ function sortData(items) {
   const sortOption = document.querySelector('input[name="sort"]:checked').value;
   if (sortOption === 'marketCap') {
     return items.sort((a, b) => parseFloat(b.mcapInVirtual) - parseFloat(a.mcapInVirtual));
+  } else if (sortOption === 'bonded') {
+    return items.sort((a, b) => parseFloat(b.bondedPercentage) - parseFloat(a.bondedPercentage)); // Sort by bonded percentage
   }
   return items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
@@ -307,6 +309,7 @@ document.querySelectorAll('input[name="type"]').forEach(input => {
   input.addEventListener('change', () => {
     const searchTerm = document.getElementById('search-input').value.trim();
     fetchData(searchTerm); // Fetch data with the current search term
+    updateBondedRadioState(); // Update the state of the Bonded % radio button
   });
 });
 
@@ -323,6 +326,7 @@ document.getElementById('search-input').addEventListener('input', (event) => {
   const searchTerm = event.target.value.trim();
   document.getElementById('clear-search').style.display = searchTerm ? 'block' : 'none'; // Show or hide clear button
   debouncedFetchData(searchTerm); // Use debounced function
+  updateBondedRadioState(); // Update the state of the Bonded % radio button
 });
 
 // Clear search input
@@ -349,5 +353,16 @@ function enableRadioButtons() {
   });
 }
 
-// Initial data fetch
+// Function to update the state of the Bonded % radio button
+function updateBondedRadioState() {
+  const isPrototypeSelected = document.querySelector('input[name="type"]:checked').value === 'prototype';
+  const isSearching = document.getElementById('search-input').value.trim() !== '';
+  const bondedRadio = document.getElementById('bonded-sort');
+
+  bondedRadio.disabled = !isPrototypeSelected || isSearching; // Disable if not Prototype or if searching
+  bondedRadio.parentElement.style.color = bondedRadio.disabled ? 'grey' : ''; // Grey out the label if disabled
+}
+
+// Initial data fetch and update the state of the Bonded % radio button
 fetchData();
+updateBondedRadioState();
