@@ -46,7 +46,7 @@ async function fetchData(searchTerm = '') {
       input.parentElement.style.color = 'grey'; // Grey out the labels
     });
 
-    url = `https://api.virtuals.io/api/virtuals?filters&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters[$or][2][tokenAddress][$contains]=${searchTerm}&filters[$or][3][preToken][$contains]=${searchTerm}`;
+    url = `https://api.virtuals.io/api/virtuals?filters&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters`;
   } else {
     const selectedType = document.querySelector('input[name="type"]:checked').value;
     url = selectedType === 'sentient' ? apiUrlSentient : apiUrlPrototype;
