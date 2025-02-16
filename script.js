@@ -310,6 +310,12 @@ document.querySelectorAll('input[name="type"]').forEach(input => {
     const searchTerm = document.getElementById('search-input').value.trim();
     fetchData(searchTerm); // Fetch data with the current search term
     updateBondedRadioState(); // Update the state of the Bonded % radio button
+
+    // Reset sorting to Newest when switching to Sentient
+    if (input.value === 'sentient') {
+      document.querySelector('input[name="sort"][value="newest"]').checked = true; // Set to Newest
+      updateBondedRadioState(); // Update the state of the Bonded % radio button
+    }
   });
 });
 
