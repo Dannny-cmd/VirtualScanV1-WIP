@@ -59,7 +59,8 @@ async function fetchData(searchTerm = '') {
     allItems = data.data.map(item => ({
       ...item,
       tokenAddress: item.tokenAddress !== null ? item.tokenAddress : item.preToken, // Use tokenAddress if not null, otherwise use preToken
-      bondedPercentage: ((parseFloat(item.mcapInVirtual) / 42000) * 100).toFixed(2) // Calculate bonded percentage using mcapInVirtual
+      bondedPercentage: ((parseFloat(item.mcapInVirtual) / 42000) * 100).toFixed(2), // Calculate bonded percentage using mcapInVirtual
+      isSentient: url === apiUrlSentient || item.tokenAddress // Check if the agent is Sentient
     }));
 
     // Fetch holders data for the filtered items
@@ -205,7 +206,7 @@ function displayData(items) {
         <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
         <p><strong>Chain:</strong> ${item.chain}</p>
         <p><strong>Market Cap:</strong> ${marketCap}</p> <!-- Use formatted market cap -->
-        <p><strong>Bonded %:</strong> ${item.bondedPercentage}%</p> <!-- Display bonded percentage -->
+        ${!item.isSentient ? `<p><strong>Bonded %:</strong> ${item.bondedPercentage}%</p>` : ''} <!-- Display bonded percentage only if not Sentient -->
         <p><strong>Top 10 Holder %:</strong> ${topHoldersPercentage}% 
           <button onclick="showTopHolders('${item.preToken}')" style="background: none; border: none; cursor: pointer;">
             <img src="https://i.postimg.cc/s2zTj2XX/magnify.png" alt="View Top Holders" style="width: 20px; height: 20px; vertical-align: middle;">
