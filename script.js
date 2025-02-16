@@ -58,9 +58,7 @@ async function fetchData(searchTerm = '') {
     const data = await response.json();
     allItems = data.data.map(item => ({
       ...item,
-      tokenAddress: item.tokenAddress !== null ? item.tokenAddress : item.preToken, // Use tokenAddress if not null, otherwise use preToken
-      bondedPercentage: ((parseFloat(item.mcapInVirtual) / 42000) * 100).toFixed(2), // Calculate bonded percentage using mcapInVirtual
-      isSentient: url === apiUrlSentient || item.tokenAddress // Check if the agent is Sentient
+      tokenAddress: item.tokenAddress !== null ? item.tokenAddress : item.preToken // Use tokenAddress if not null, otherwise use preToken
     }));
 
     // Fetch holders data for the filtered items
@@ -173,8 +171,6 @@ function sortData(items) {
   const sortOption = document.querySelector('input[name="sort"]:checked').value;
   if (sortOption === 'marketCap') {
     return items.sort((a, b) => parseFloat(b.mcapInVirtual) - parseFloat(a.mcapInVirtual));
-  } else if (sortOption === 'bonded') {
-    return items.sort((a, b) => parseFloat(b.bondedPercentage) - parseFloat(a.bondedPercentage)); // Sort by bonded percentage
   }
   return items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
@@ -208,7 +204,6 @@ function displayData(items) {
         <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
         <p><strong>Chain:</strong> ${item.chain}</p>
         <p><strong>Market Cap:</strong> ${marketCap}</p> <!-- Use formatted market cap -->
-        ${!item.isSentient ? `<p><strong>Bonded %:</strong> ${item.bondedPercentage}%</p>` : ''} <!-- Display bonded percentage only if not Sentient -->
         <p><strong>Top 10 Holder %:</strong> ${topHoldersPercentage}% 
           <button onclick="showTopHolders('${item.preToken}')" style="background: none; border: none; cursor: pointer;">
             <img src="https://i.postimg.cc/s2zTj2XX/magnify.png" alt="View Top Holders" style="width: 20px; height: 20px; vertical-align: middle;">
@@ -309,13 +304,6 @@ document.querySelectorAll('input[name="type"]').forEach(input => {
   input.addEventListener('change', () => {
     const searchTerm = document.getElementById('search-input').value.trim();
     fetchData(searchTerm); // Fetch data with the current search term
-    updateBondedRadioState(); // Update the state of the Bonded % radio button
-
-    // Reset sorting to Newest when switching to Sentient
-    if (input.value === 'sentient') {
-      document.querySelector('input[name="sort"][value="newest"]').checked = true; // Set to Newest
-      updateBondedRadioState(); // Update the state of the Bonded % radio button
-    }
   });
 });
 
@@ -332,7 +320,6 @@ document.getElementById('search-input').addEventListener('input', (event) => {
   const searchTerm = event.target.value.trim();
   document.getElementById('clear-search').style.display = searchTerm ? 'block' : 'none'; // Show or hide clear button
   debouncedFetchData(searchTerm); // Use debounced function
-  updateBondedRadioState(); // Update the state of the Bonded % radio button
 });
 
 // Clear search input
@@ -359,16 +346,5 @@ function enableRadioButtons() {
   });
 }
 
-// Function to update the state of the Bonded % radio button
-function updateBondedRadioState() {
-  const isPrototypeSelected = document.querySelector('input[name="type"]:checked').value === 'prototype';
-  const isSearching = document.getElementById('search-input').value.trim() !== '';
-  const bondedRadio = document.getElementById('bonded-sort');
-
-  bondedRadio.disabled = !isPrototypeSelected || isSearching; // Disable if not Prototype or if searching
-  bondedRadio.parentElement.style.color = bondedRadio.disabled ? 'grey' : ''; // Grey out the label if disabled
-}
-
-// Initial data fetch and update the state of the Bonded % radio button
+// Initial data fetch
 fetchData();
-updateBondedRadioState();
