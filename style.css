@@ -24,38 +24,9 @@
       margin-bottom: 20px;
     }
 
-    .hamburger {
-      font-size: 24px;
-      cursor: pointer;
-      margin-right: 20px;
-			margin-bottom: 275px;
-      position: relative; /* Position relative for better control */
-      z-index: 10; /* Ensure it stays above other elements */
-    }
-
-    .sidebar {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 200px;
-      height: 75%;
-      background-color: #3c3c3c;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      padding: 10px;
-      transition: transform 0.3s ease; /* Smooth transition */
-    }
-
-    .sidebar a {
-      display: block;
-      color: #ffffff;
-      padding: 10px;
-      text-decoration: none;
-    }
-
-    .sidebar a:hover {
-      background-color: #444;
+    .logo {
+      max-width: 200px;
+      height: auto;
     }
 
     .filters {
@@ -73,7 +44,6 @@
     .search-input {
       width: 175px;
       padding: 8px;
-			margin-top: 120px;
       margin-right: 10px;
       border: 1px solid #444;
       border-radius: 4px;
@@ -83,7 +53,6 @@
 
     .clear-button {
       position: absolute;
-			margin-top: 60px;
       right: 10px;
       top: 50%;
       transform: translateY(-50%);
@@ -105,8 +74,8 @@
       margin: 0;
       font-size: 1.5em;
       margin-bottom: 15px;
-      padding-left: 10px;
-      padding-bottom: 5px;
+			padding-left: 10px;
+			padding-bottom: 5px;
     }
 
     .sorting-options {
@@ -127,9 +96,13 @@
       margin: 0 3px; /* Reduced margin for spacing */
     }
 
+    .sort-group label,
+    .type-group label {
+      margin: 0; /* Remove margin between radio button and text */
+    }
+
     .chain-filter {
       width: 175px;
-			margin-top: 120px;
       padding: 7px;
       border: 1px solid #444;
       border-radius: 4px;
@@ -249,6 +222,19 @@
       cursor: pointer;
     }
 
+    /* Popup notification styles */
+    .copy-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+    }
+
     /* Stylish Loading Screen Styles */
     .loading-screen {
       position: fixed;
@@ -283,6 +269,11 @@
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    /* Adjust font size for CA and Dev Wallet */
+    .copyable-text strong {
+      font-size: 0.9em; /* Same size as holders, chain, etc. */
     }
 
     /* Refresh Button Styles */
