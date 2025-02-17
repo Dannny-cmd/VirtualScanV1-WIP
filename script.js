@@ -178,7 +178,16 @@ function sortData(items) {
 function displayData(items) {
   const container = document.getElementById('data-container');
   container.innerHTML = '';
-  const sortedItems = sortData(items);
+
+  // Get the selected chain
+  const selectedChain = document.getElementById('chain-filter').value;
+
+  // Filter items based on the selected chain
+  const filteredItems = items.filter(item => {
+    return selectedChain ? item.chain === selectedChain : true;
+  });
+
+  const sortedItems = sortData(filteredItems);
   sortedItems.forEach(item => {
     const mcapInVirtual = parseFloat(item.mcapInVirtual);
     const marketCap = formatMarketCap(mcapInVirtual * priceUsd); // Format market cap
@@ -310,7 +319,7 @@ document.querySelectorAll('input[name="type"]').forEach(input => {
 // Add event listener for sorting buttons
 document.querySelectorAll('input[name="sort"]').forEach(input => {
   input.addEventListener('change', () => {
-    displayData(allItems); // Re-display data when sorting option changes
+    filterData(); // Re-display data when sorting option changes
   });
 });
 
