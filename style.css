@@ -294,6 +294,11 @@ h1 {
   color: red; /* Red for price decrease */
 }
 
+/* Chain Image Adjustment */
+.item-header img[src*="base"], .item-header img[src*="sol"] {
+  vertical-align: middle; /* Ensure images align properly */
+}
+
 /* Mobile Styles */
 @media (max-width: 768px) {
   .header {
