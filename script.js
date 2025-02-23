@@ -66,7 +66,7 @@ async function fetchData(searchTerm = '') {
       input.parentElement.style.color = 'grey'; // Grey out the labels
     });
 
-    url = `https://api.virtuals.io/api/virtuals?filters&sort[0]=createdAt%3Adesc&sort[1]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters`;
+    url = `https://api.virtuals.io/api/virtuals?filters[status]=3&filters[$or][0][name][$contains]=${searchTerm}&filters[$or][1][symbol][$contains]=${searchTerm}&filters&sort[0]=createdAt%3Adesc&populate[0]=image&pagination[page]=1&pagination[pageSize]=100`;
   } else {
     const selectedType = document.querySelector('input[name="type"]:checked').value;
     url = selectedType === 'sentient' ? apiUrlSentient : apiUrlPrototype;
@@ -76,21 +76,68 @@ async function fetchData(searchTerm = '') {
   try {
     const response = await fetch(url);
     const data = await response.json();
-    allItems = data.data.map(item => ({
-      ...item,
-      tokenAddress: item.tokenAddress !== null ? item.tokenAddress : item.preToken, // Use tokenAddress if not null, otherwise use preToken
-      volume: item.volume || {}, // Add volume data
-      priceChange: item.priceChange || {} // Add price change data
-    }));
+    
+    if (data.filters && data.filters[0].status === 2) {
+      // For Sentient, directly use the volume and price change from the response
+      allItems = data.data.map(item => ({
+        ...item,
+        tokenAddress: item.tokenAddress !== null ? item.tokenAddress : item.preToken, // Use tokenAddress if not null, otherwise use preToken
+        volume: {
+          h1: item.volume.h1,
+          h6: item.volume.h6,
+          h24: item.volume.h24
+        },
+        priceChange: {
+          h1: item.priceChange.h1,
+          h6: item.priceChange.h6,
+          h24: item.priceChange.h24
+        }
+      }));
+    } else {
+      allItems = data.data.map(item => ({
+        ...item,
+        tokenAddress: item.tokenAddress !== null ? item.tokenAddress : item.preToken, // Use tokenAddress if not null, otherwise use preToken
+        volume: item.volume || {}, // Add volume data
+        priceChange: item.priceChange || {} // Add price change data
+      }));
+      
+      // Fetch holders data for the filtered items
+      const holdersData = await fetchAllHolders(allItems);
+      
+      allItems = allItems.map((item, index) => ({
+        ...item,
+        topHolders: holdersData[index].holders || [], // Ensure topHolders is always defined
+        lockedPercentage: holdersData[index].lockedPercentage, // Add locked percentage
+        topHoldersPercentage: holdersData[index].topHoldersPercentage // Add top 10 holders percentage
+      }));
 
-    // Fetch holders data for the filtered items
-    const holdersData = await fetchAllHolders(allItems);
-    allItems = allItems.map((item, index) => ({
-      ...item,
-      topHolders: holdersData[index].holders || [], // Ensure topHolders is always defined
-      lockedPercentage: holdersData[index].lockedPercentage, // Add locked percentage
-      topHoldersPercentage: holdersData[index].topHoldersPercentage // Add top 10 holders percentage
-    }));
+      // Fetch additional data for apiUrlPrototype
+      if (url === apiUrlPrototype) {
+        await Promise.all(allItems.map(async (item) => {
+          const chainID = item.chain === 'SOLANA' ? 1 : 0; // Determine chainID
+          const preToken = item.preToken; // Get preToken
+          
+// Fetch data for 1 hour
+const oneHourResponse = await fetch(`https://vp-api.virtuals.io/vp-api/tickers?tokenAddress=${preToken}&granularity=3600&chainID=${chainID}`);
+const oneHourData = await oneHourResponse.json();
+item.volume.h1 = oneHourData.data.Ticker.volume; // Set volume for 1 hour
+item.priceChange.h1 = isNaN(parseFloat(oneHourData.data.Ticker.priceChangePercent)) ? '0.00' : parseFloat(oneHourData.data.Ticker.priceChangePercent).toFixed(2); // Set price change for 1 hour with 2 decimal places
+
+// Fetch data for 6 hours
+const sixHourResponse = await fetch(`https://vp-api.virtuals.io/vp-api/tickers?tokenAddress=${preToken}&granularity=21600&chainID=${chainID}`);
+const sixHourData = await sixHourResponse.json();
+item.volume.h6 = sixHourData.data.Ticker.volume; // Set volume for 6 hours
+item.priceChange.h6 = isNaN(parseFloat(sixHourData.data.Ticker.priceChangePercent)) ? '0.00' : parseFloat(sixHourData.data.Ticker.priceChangePercent).toFixed(2); // Set price change for 6 hours with 2 decimal places
+
+// Fetch data for 24 hours
+const twentyFourHourResponse = await fetch(`https://vp-api.virtuals.io/vp-api/tickers?tokenAddress=${preToken}&granularity=86400&chainID=${chainID}`);
+const twentyFourHourData = await twentyFourHourResponse.json();
+item.volume.h24 = twentyFourHourData.data.Ticker.volume; // Set volume for 24 hours
+item.priceChange.h24 = isNaN(parseFloat(twentyFourHourData.data.Ticker.priceChangePercent)) ? '0.00' : parseFloat(twentyFourHourData.data.Ticker.priceChangePercent).toFixed(2); // Set price change for 24 hours with 2 decimal places
+
+        }));
+      }
+    }
 
     displayData(allItems);
     populateChainFilter(allItems);
@@ -261,15 +308,15 @@ function displayData(items) {
         <p><strong>Holders:</strong> ${item.holderCount || 0}</p>
         <p><strong>Market Cap:</strong> ${marketCap}</p> <!-- Use formatted market cap -->
         
-        ${item.volume.h1 || item.volume.h6 || item.volume.h24 ? `<p><strong>Vol:</strong> 
+        <p><strong>Vol:</strong> 
           1H: ${formatVolume(item.volume.h1 || 0)} | 
           6H: ${formatVolume(item.volume.h6 || 0)} | 
-          24H: ${formatVolume(item.volume.h24 || 0)}</p>` : ''}
+          24H: ${formatVolume(item.volume.h24 || 0)}</p>
         
-        ${item.priceChange.h1 !== undefined || item.priceChange.h6 !== undefined || item.priceChange.h24 !== undefined ? `<p><strong>Change:</strong> 
+        <p><strong>Change:</strong> 
           1H: <span class="${item.priceChange.h1 > 0 ? 'price-change-up' : item.priceChange.h1 < 0 ? 'price-change-down' : ''}">${item.priceChange.h1 !== undefined ? item.priceChange.h1 + '%' : '0%'}</span> | 
           6H: <span class="${item.priceChange.h6 > 0 ? 'price-change-up' : item.priceChange.h6 < 0 ? 'price-change-down' : ''}">${item.priceChange.h6 !== undefined ? item.priceChange.h6 + '%' : '0%'}</span> | 
-          24H: <span class="${item.priceChange.h24 > 0 ? 'price-change-up' : item.priceChange.h24 < 0 ? 'price-change-down' : ''}">${item.priceChange.h24 !== undefined ? item.priceChange.h24 + '%' : '0%'}</span></p>` : ''}
+          24H: <span class="${item.priceChange.h24 > 0 ? 'price-change-up' : item.priceChange.h24 < 0 ? 'price-change-down' : ''}">${item.priceChange.h24 !== undefined ? item.priceChange.h24 + '%' : '0%'}</span></p>
         
         <p><strong>Top 10 Holder %:</strong> ${topHoldersPercentage}% 
           <button onclick="showTopHolders('${item.preToken}')" style="background: none; border: none; cursor: pointer;">
